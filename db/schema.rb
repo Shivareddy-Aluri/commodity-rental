@@ -10,9 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_21_103635) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_21_134354) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "bids", force: :cascade do |t|
+    t.uuid "bid_id"
+    t.bigint "listing_id", null: false
+    t.bigint "renter_id", null: false
+    t.decimal "bid_price_month"
+    t.integer "lease_period"
+    t.decimal "total_price"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["listing_id"], name: "index_bids_on_listing_id"
+    t.index ["renter_id"], name: "index_bids_on_renter_id"
+  end
 
   create_table "commodities", force: :cascade do |t|
     t.bigint "lender_id", null: false
@@ -47,6 +60,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_21_103635) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "bids", "listings"
+  add_foreign_key "bids", "users", column: "renter_id"
   add_foreign_key "commodities", "users", column: "lender_id"
   add_foreign_key "listings", "commodities"
   add_foreign_key "listings", "users", column: "lender_id"
