@@ -9,4 +9,12 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   post 'user/signup', to: 'users#create'
+
+  namespace :api do
+    resources :commodities, only: [] do
+      collection do
+        post :list
+      end
+    end
+  end
 end

@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  lender: one
+  category: MyString
+  name: MyString
+  is_rented: false
+
+two:
+  lender: two
+  category: MyString
+  name: MyString
+  is_rented: false
