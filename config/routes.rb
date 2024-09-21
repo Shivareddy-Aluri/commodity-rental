@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     resources :commodities, only: [] do
       collection do
         post :list
+        get :list, to: 'commodities#get_list'
       end
     end
   end

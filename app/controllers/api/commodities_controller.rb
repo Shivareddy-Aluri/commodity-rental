@@ -19,6 +19,29 @@ module Api
             end
         end
 
+        def get_list
+            listings = Listing.where(is_active: true)
+
+            if params[:item_category].present?
+                listings = listings.joins(:commodity).where(commodities: { category: params[:item_category] })
+            end
+
+            payload = listings.includes(:commodity).map do |listing|
+                {
+                  commodity_id: listing.commodity.id,
+                  created_at: listing.created_at.to_i,
+                  quote_price_per_month: listing.min_monthly_rate,
+                  item_category: listing.commodity.category
+                }
+            end
+
+            render json: {
+                status: "success",
+                message: "Available commodities fetched successfully",
+                payload: payload
+            }, status: :ok
+        end
+
         private
 
         def check_criteria
