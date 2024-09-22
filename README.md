@@ -144,5 +144,10 @@ docker-compose down
     }
     ```
 
+### Database Schema Design
+
+<img width="1196" alt="Screenshot 2024-09-22 at 7 22 44 PM" src="https://github.com/user-attachments/assets/0bf4b6b6-c294-4b19-8ee9-c4e6f41a51ff">
+
+
 
 ## Note [Not so perfect still WIP, This an API only app. dockerization i tested with podman(as there are restrictions on my mac😅) should work with docker desktop as well]
