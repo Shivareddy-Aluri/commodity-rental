@@ -4,6 +4,7 @@ module Api
         before_action :check_criteria, :check_required_params, only: [:list]
         before_action :check_bid_eligibility, only: [:create_bid, :re_bid]
         before_action :check_criteria, only: [:list_my_commodities]
+        before_action :can_be_relisted?, :can_list?, only: [:re_list]
 
         def list
             commodity = Commodity.find_or_initialize_by(name: params[:item_name], category: params[:item_category], lender: @current_user)
@@ -141,6 +142,28 @@ module Api
             render json: { status: "success", message: "Commodities fetched successfully", payload: payload }, status: :ok
         end
 
+        def re_list
+            existing_listing = @commodity.listing
+
+            if existing_listing
+                existing_listing.update(is_active: false)
+            end
+
+            listing = Listing.new(commodity: @commodity, lender: @commodity.lender, 
+                            min_monthly_rate: params[:quote_price_per_month] || existing_listing&.min_monthly_rate,
+                            lease_period: 6, 
+                            bid_strategy: params[:bid_strategy] || existing_listing&.bid_strategy,
+                            is_active: true,
+                            expires_at: Time.now + 3.hours
+                        )
+
+            if listing.save
+                render json: { status: "success", message: "Commodity re-listed successfully", payload: { commodity_id: listing.commodity.id, quote_price_per_month: listing.min_monthly_rate }}, status: :created
+            else
+                render json: { status: "error", message: "Commodity could not be re-listed"}, status: :unprocessable_entity
+            end
+        end
+        
         private
 
         def check_criteria
@@ -154,6 +177,27 @@ module Api
             if @current_user.user_type != "renter"
                 render json: { status: "error", message: "lender cannot bid" }, status: :unauthorized
                 return false
+            end
+        end
+
+        def can_list?
+            if @current_user.user_type != "lender"
+                render json: { status: "error", message: "User doesnot have permission to list" }, status: :unauthorized
+                return false
+            end
+        end
+
+        def can_be_relisted?
+            @commodity = Commodity.find(params[:commodity_id])
+
+            if @commodity.is_rented?
+                render json: { status: "error", message: "Commodity is currently rented and cannot be re-listed" }, status: :unprocessable_entity
+                return
+            end
+
+            if @commodity.lender != @current_user
+                render json: { status: "error", message: "cannot find the commodity" }, status: :not_found
+                return
             end
         end
 
