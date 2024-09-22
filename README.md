@@ -1,5 +1,4 @@
 # tanX - Commodity Rental Solution
-### [not so perfect still WIP]
 ## Problem Statement
 
 A prototype of a **“Commodity Rental Solution”** needs to be developed. On this product, users can sign up as lenders or renters. A lender can list a commodity (e.g., a blazer, shoes, laptop) for rent and quote a minimum monthly charge for renting the commodity. A renter can put a bid for the available commodities on the product. A bid window is open for 3 hours since the time a lender lists a product. At the end of 3 hours, the system determines one of the bids to be the best bid among available ones and marks the commodity as listed for that bid (details below).
@@ -144,3 +143,6 @@ docker-compose down
         "user_id": 2
     }
     ```
+
+
+## Note [Not so perfect still WIP, This an API only app. dockerization i tested with podman(as there are restrictions on my mac😅) should work with docker desktop as well]
