@@ -1,4 +1,15 @@
 services:
+  db:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust 
+      POSTGRES_DB: commodity_rental_development
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
   app:
     build:
       context: .
@@ -12,17 +23,22 @@ services:
       - RAILS_ENV=development
     depends_on:
       - db
-
-  db:
-    image: postgres:14
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_HOST_AUTH_METHOD: trust 
-      POSTGRES_DB: commodity_rental_development
+  
+  redis:
+    image: redis:latest
+    
+  sidekiq:
+    build:
+      context: .
+    command: bundle exec sidekiq
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - .:/rails
+    environment:
+      - RAILS_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+      - db
 
 volumes:
   db_data:
