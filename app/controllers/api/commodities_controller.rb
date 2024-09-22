@@ -2,7 +2,7 @@ module Api
     class Api::CommoditiesController < ApplicationController
 
         before_action :check_criteria, :check_required_params, only: [:list]
-        before_action :check_bid_eligibility, only: [:create_bid]
+        before_action :check_bid_eligibility, only: [:create_bid, :re_bid]
 
         def list
             commodity = Commodity.find_or_initialize_by(name: params[:item_name], category: params[:item_category], lender: @current_user)
@@ -55,14 +55,45 @@ module Api
                 render json: { status: "error", message: "Bid price must be greater than or equal to the minimum monthly rate" }, status: :unprocessable_entity
                 return
             end
-
-            bid = Bid.new(listing: listing, renter: @current_user, bid_price_month: params[:bid_price_month], lease_period: params[:rental_duration])
+            bid = Bid.new(listing: listing, renter: @current_user, bid_price_month: params[:bid_price_month], lease_period: params[:rental_duration], total_price: params[:bid_price_month] * params[:rental_duration])
 
             if bid.save
                 render json: { status: "success", message: "Bid created successfully", payload: { bid_id: bid.id, commodity_id: bid.listing.commodity.id, created_at: bid.created_at.to_i} }, status: :created
             else
                 render json: { status: "error", message: bid.errors.full_messages.join(", ") }, status: :unprocessable_entity
             end
+        end
+
+        def re_bid
+            listing = Listing.find_by(commodity_id: params[:commodity_id], is_active: true)
+
+            unless listing
+                render json: { status: "error", message: "Listing not found or inactive" }, status: :not_found
+                return
+            end
+
+            bid = Bid.find_by(listing: listing, renter: @current_user)
+
+            unless bid
+                render json: { status: "error", message: "Bid not found for this commodity by renter" }, status: :not_found
+                return
+            end
+
+            if params[:bid_price_month].to_f < listing.min_monthly_rate
+                render json: { status: "error", message: "Bid price must be greater than or equal to the minimum monthly rate" }, status: :unprocessable_entity
+                return
+            end
+
+            bid.bid_price_month = params[:bid_price_month]
+            bid.lease_period = params[:rental_duration]
+            bid.total_price = bid.bid_price_month * bid.lease_period
+
+            if bid.save
+                render json: { status: "success", message: "Bid revised successfully", payload: { bid_id: bid.id, commodity_id: listing.commodity_id, bid_price_month: bid.bid_price_month, rental_duration: bid.lease_period, created_at: bid.created_at.to_i }}, status: :ok
+            else
+                render json: { status: "error", message: bid.errors.full_messages.join(", ") }, status: :unprocessable_entity
+            end
+        
         end
 
         private

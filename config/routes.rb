@@ -16,6 +16,7 @@ Rails.application.routes.draw do
         post :list
         get :list, to: 'commodities#get_list'
         post :bid, to: 'commodities#create_bid'
+        post :re_bid, to: 'commodities#re_bid'
       end
     end
   end
