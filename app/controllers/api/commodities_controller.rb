@@ -96,6 +96,25 @@ module Api
         
         end
 
+        def get_bids
+            listing = Listing.find_by(commodity_id: params[:id], is_active: true)
+
+            unless listing
+                render json: { status: "error", message: "No active listing found for this commodity" }, status: :not_found
+                return
+            end
+
+            bids = listing.bids
+            bid_list = bids&.map do |bid| {
+                    bid_id: bid.id,
+                    created_at: bid.created_at.to_i,
+                    bid_price_month: bid.bid_price_month,
+                    rental_duration: bid.lease_period
+                }
+            end
+            render json: { status: "success", message: "Bids for commodity fetched successfully", payload: bid_list }, status: :ok
+        end
+
         private
 
         def check_criteria
