@@ -48,7 +48,7 @@ module Api
         def create_bid
             listing = Listing.find_by(commodity_id: params[:commodity_id], is_active: true)
 
-            unless listing
+            unless listing && listing.expires_at > Time.now
                 render json: { status: "error", message: "Listing not found or inactive" }, status: :not_found
                 return
             end
@@ -159,6 +159,7 @@ module Api
 
             if listing.save
                 render json: { status: "success", message: "Commodity re-listed successfully", payload: { commodity_id: listing.commodity.id, quote_price_per_month: listing.min_monthly_rate }}, status: :created
+                BidEvaluationWorkerJob.perform_in(3.hours, listing.id)
             else
                 render json: { status: "error", message: "Commodity could not be re-listed"}, status: :unprocessable_entity
             end
@@ -217,15 +218,13 @@ module Api
             listing.expires_at = Time.now + 3.hours
 
             if listing.save
-                render json: {
-                  status: "success",
-                  message: "Commodity listed successfully",
-                  payload: {
-                    commodity_id: listing.id,
+                render json: { status: "success", message: "Commodity listed successfully", payload: {
+                    commodity_id: commodity.id,
                     quote_price_per_month: listing.min_monthly_rate,
                     created_at: listing.created_at
                   }
                 }, status: :created
+                BidEvaluationWorkerJob.perform_in(3.hours, listing.id)
             else
                 render json: { status: "error", message: listing.errors.full_messages.join(", ") }, status: :unprocessable_entity
             end
