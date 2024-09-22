@@ -3,6 +3,7 @@ module Api
 
         before_action :check_criteria, :check_required_params, only: [:list]
         before_action :check_bid_eligibility, only: [:create_bid, :re_bid]
+        before_action :check_criteria, only: [:list_my_commodities]
 
         def list
             commodity = Commodity.find_or_initialize_by(name: params[:item_name], category: params[:item_category], lender: @current_user)
@@ -113,6 +114,31 @@ module Api
                 }
             end
             render json: { status: "success", message: "Bids for commodity fetched successfully", payload: bid_list }, status: :ok
+        end
+
+        def list_my_commodities
+            commodities = Commodity.where(lender: @current_user)
+
+            payload = commodities.map do |commodity|
+                listing = commodity.listing
+          
+                status = if listing&.is_active
+                           "listed"
+                         elsif commodity.is_rented
+                           "rented"
+                         end
+                {
+                    commodity_id: commodity.id,
+                    created_at: commodity.created_at.to_i,
+                    quote_price_per_month: listing&.min_monthly_rate,
+                    item_category: commodity.category,
+                    status: status
+                    # accepted_bid_price: 
+                    # accepted_rented_period: 
+                }
+            end
+
+            render json: { status: "success", message: "Commodities fetched successfully", payload: payload }, status: :ok
         end
 
         private
