@@ -34,98 +34,93 @@ A prototype of a **“Commodity Rental Solution”** needs to be developed. On t
 - **Ruby**: 3.3.4
 - **Rails**: 7.2.1
 - **Database**: PostgreSQL
+- **Redis**
 
 ### Installation Steps
 
 1. Clone the repository:
 
-    ```bash
+    ```
     git clone https://github.com/Shivareddy-Aluri/commodity-rental.git
     cd commodity-rental
     ```
 
 2. Install the required gems:
 
-    ```bash
+    ```
     bundle install
     ```
 
 3. Set up the database:
 
-    ```bash
+    ```
     rails db:create
     rails db:migrate
     ```
 
 4. Start the Rails server:
 
-    ```bash
+    ```
     rails s
     ```
-5. Get the jwt secret:
+5. Start Redis:
 
-    ```bash
-    Rails.application.credentials.secret_key_base
+    ```
+   brew services start redis
     ```
 
-6. Visit `http://localhost:3000` to view the application.
+6. Start Sidekiq Server
 
+    ```
+    bundle exec sidekiq
+    ```
+
+7. Visit `http://localhost:3000` to view the application.
+
+8. Visit `http://localhost:3000/sidekiq` to view Sidekiq UI
 
 ## Setup with Docker
 
-### 1. Clone the Repository
-
-To clone the repository, run:
+1. Clone the Repository
 
 ```
 git clone https://github.com/your-username/commodity-rental.git
 cd commodity-rental
 ```
 
-### 2. Build and Start the Application Containers
-
-Run the following command to build and start the application containers using Docker Compose:
+2. Build and Start the Application Containers
 
 ```
 docker-compose up --build
 ```
 
-### 3. View containers
-
-Run the following command to check if the containers started running.
+3. View containers
 
 ```
 docker ps
 ```
 
-### 4. Running Database Migrations
-
-Once the containers are up, you need to run the database migrations. Open a terminal inside the running Rails container and run the migration command:
+4. Running Database Migrations
 
 ```
 docker exec -it <app-container-name> bash
 bin/rails db:migrate
 ```
 
- ### 5. Accessing the Application
-
- After the migrations are complete, you can access the application at:
+5. Accessing the Application
 
 ```
 http://localhost:3000
 ```
 
-### 6. Viewing Application Logs
-To view the logs of the running Rails container:
+6. Viewing Application Logs
 
 ```
 docker logs -f <container-name>
 
 ```
 
-### 7. Kill the application
-
-To kill the app:
+7. Kill the application
 
 ```
 docker-compose down
@@ -134,3 +129,18 @@ docker-compose down
 ## Postman collection
    
 [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://app.getpostman.com/run-collection/15937086-b69e78d4-16a3-44a6-a653-2479f53f61c1?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D15937086-b69e78d4-16a3-44a6-a653-2479f53f61c1%26entityType%3Dcollection%26workspaceId%3Dc729701f-dd3d-4478-92dd-7c9c87dc3316)
+
+1. steps get the secret
+
+    ```
+    rails c
+    Rails.application.credentials.secret_key_base
+    ```
+
+2. payload to build JWT token
+
+    ```
+    {
+        "user_id": 2
+    }
+    ```
