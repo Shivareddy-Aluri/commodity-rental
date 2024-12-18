@@ -101,7 +101,7 @@ GEM
     jwt (2.9.0)
       base64
     language_server-protocol (3.17.0.3)
-    logger (1.6.1)
+    logger (1.6.3)
     loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -146,7 +146,7 @@ GEM
     puma (6.4.3)
       nio4r (~> 2.0)
     racc (1.8.1)
-    rack (3.1.7)
+    rack (3.1.8)
     rack-session (2.0.0)
       rack (>= 3.0.0)
     rack-test (2.1.0)
@@ -187,7 +187,7 @@ GEM
     rake (13.2.1)
     rdoc (6.7.0)
       psych (>= 4.0.0)
-    redis-client (0.22.2)
+    redis-client (0.23.0)
       connection_pool
     regexp_parser (2.9.2)
     reline (0.5.10)
@@ -222,8 +222,7 @@ GEM
       rubocop-rails
     ruby-progressbar (1.13.0)
     securerandom (0.3.1)
-    sidekiq (7.3.2)
-      concurrent-ruby (< 2)
+    sidekiq (7.3.7)
       connection_pool (>= 2.3.0)
       logger
       rack (>= 2.2.4)
